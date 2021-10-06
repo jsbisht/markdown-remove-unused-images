@@ -1,10 +1,10 @@
 // https://stackoverflow.com/questions/41462606/get-all-files-recursively-in-directories-nodejs
+import "regenerator-runtime/runtime";
+import * as fs from "fs";
+import * as path from "path";
 
-const fs = require("fs");
-const path = require("path");
-const matchPattern = /\.\/[\w-.]+[?)]/g;
-
-function* walkSync(rootDirectory) {
+export function* walkSync(rootDirectory) {
+  if (!rootDirectory) return null;
   const files = fs.readdirSync(rootDirectory, { withFileTypes: true });
   for (const file of files) {
     if (file.isDirectory()) {
@@ -15,7 +15,7 @@ function* walkSync(rootDirectory) {
   }
 }
 
-function getFilesInDirectory(rootDirectory, imageExtensions = ["webp"]) {
+export function getFilesInDirectory(rootDirectory, imageExtensions = ["webp"]) {
   const imagesPathList = [];
   const markdownFiles = [];
 
@@ -27,20 +27,20 @@ function getFilesInDirectory(rootDirectory, imageExtensions = ["webp"]) {
 
   return {
     imagesPathList,
-    markdownFiles,
+    markdownFiles
   };
 }
 
 /**
  * Only images with relative paths are considered
  */
-function getImageListFromContent(content) {
+export function getImageListFromContent(content) {
   const matchPattern = /\.\/[\w-.]+[?)]/g;
   const imageList = [...content.matchAll(matchPattern)].flat();
   return imageList.map((image) => image.substring(2, image.length - 1));
 }
 
-function getUsedImagesInMarkdownFile(markdownFile) {
+export function getUsedImagesInMarkdownFile(markdownFile) {
   try {
     const data = fs.readFileSync(markdownFile, "utf8");
     const list = getImageListFromContent(data);
@@ -50,7 +50,7 @@ function getUsedImagesInMarkdownFile(markdownFile) {
   }
 }
 
-function getUsedImagesList(markdownFiles) {
+export function getUsedImagesList(markdownFiles) {
   let usedImagesList = [];
   for (const markdownFile in markdownFiles) {
     const list = getUsedImagesInMarkdownFile(markdownFile);
@@ -59,7 +59,7 @@ function getUsedImagesList(markdownFiles) {
   return usedImagesList;
 }
 
-function deleteFiles(files, callback) {
+export function deleteFiles(files, callback) {
   var i = files.length;
   files.forEach(function (filepath) {
     fs.unlink(filepath, function (err) {
@@ -74,7 +74,7 @@ function deleteFiles(files, callback) {
   });
 }
 
-function deleteUnusedImages(unusedImagesPaths) {
+export function deleteUnusedImages(unusedImagesPaths) {
   deleteFiles(files, function (err) {
     if (err) {
       console.log(err);
@@ -84,7 +84,7 @@ function deleteUnusedImages(unusedImagesPaths) {
   });
 }
 
-function run(rootDirectory) {
+export function run(rootDirectory) {
   const { imagesPaths, markdownFiles } = getFilesInDirectory(rootDirectory);
   const { usedImagesPaths } = getUsedImagesList(markdownFiles);
   const unusedImagesPaths = usedImagesPaths
@@ -94,6 +94,6 @@ function run(rootDirectory) {
   console.log(unusedImagesPaths);
 }
 
-run(
-  "/home/jsbisht/workspace/github/aws-associate/Cloud Academy - AWS Associate"
-);
+// run(
+//   "/home/jsbisht/workspace/github/aws-associate/Cloud Academy - AWS Associate"
+// );
